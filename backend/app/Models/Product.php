@@ -1,15 +1,35 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    use HasFactory;
+    protected $table = 'products';
+    protected $fillable = ['name', 'price', 'hot', 'sale', 'description', 'brandId', 'categoryId'];
 
-    protected $fillable = [
-        'name', 'link', 'price', 'hot', 'sale', 'description'
-    ];
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brandId');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'categoryId');
+    }
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'productId');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class, 'productId');
+    }
+
+    public function productStocks()
+    {
+        return $this->hasMany(ProductStock::class, 'productId');
+    }
 }
