@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Services\ProductService;
@@ -21,19 +20,7 @@ class ProductController extends Controller
             $products = $this->productService->getAllProducts();
             return response()->json($products, 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function getProductById($id): JsonResponse
-    {
-        try {
-            $product = $this->productService->getProductById($id);
-            if (!$product) {
-                return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
-            }
-            return response()->json($product, 200);
-        } catch (\Exception $e) {
+            \Log::error('Lỗi lấy danh sách sản phẩm: ' . $e->getMessage());
             return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
         }
     }
@@ -43,34 +30,17 @@ class ProductController extends Controller
         try {
             $product = $this->productService->createProduct($request);
             return response()->json($product, 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Lỗi xác thực: ', $e->errors());
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function updateProduct($id, Request $request): JsonResponse
-    {
-        try {
-            $product = $this->productService->updateProduct($id, $request);
-            if (!$product) {
-                return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
-            }
-            return response()->json($product, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function deleteProduct($id): JsonResponse
-    {
-        try {
-            $product = $this->productService->deleteProduct($id);
-            if (!$product) {
-                return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
-            }
-            return response()->json(['message' => 'Xóa sản phẩm thành công'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
+            \Log::error('Lỗi tạo sản phẩm: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Lỗi khi tạo sản phẩm: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

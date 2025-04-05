@@ -5,29 +5,45 @@ use App\Models\Size;
 
 class SizeRepository
 {
+    protected $model;
+
+    public function __construct(Size $model)
+    {
+        $this->model = $model;
+    }
+
     public function getAll()
     {
-        return Size::all();
+        return $this->model->all();
     }
 
     public function findById($id)
     {
-        return Size::find($id);
+        return $this->model->find($id);
     }
 
     public function create(array $data)
     {
-        return Size::create($data);
+        return $this->model->create($data);
     }
 
-    public function update(Size $size, array $data)
+    public function update($id, array $data)
     {
-        $size->update($data);
-        return $size;
+        $size = $this->model->find($id);
+        if ($size) {
+            $size->update($data);
+            return $size;
+        }
+        return null;
     }
 
-    public function delete(Size $size)
+    public function delete($id)
     {
-        return $size->delete();
+        $size = $this->model->find($id);
+        if ($size) {
+            $size->delete();
+            return true;
+        }
+        return false;
     }
 }

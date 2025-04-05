@@ -63,12 +63,13 @@ Route::prefix('v1/colors')->group(function () {
     Route::delete('/{id}', [ColorController::class, 'destroy']);
 });
 Route::prefix('v1/sizes')->group(function () {
-    Route::get('/', [SizeController::class, 'index']);        // GET    /api/v1/sizes
-    Route::get('/{id}', [SizeController::class, 'show']);     // GET    /api/v1/sizes/{id}
-    Route::post('/', [SizeController::class, 'store']);       // POST   /api/v1/sizes
-    Route::put('/{id}', [SizeController::class, 'update']);   // PUT    /api/v1/sizes/{id}
-    Route::delete('/{id}', [SizeController::class, 'destroy']); // DELETE /api/v1/sizes/{id}
+    Route::get('/', [SizeController::class, 'index']);   
+    Route::get('/{id}', [SizeController::class, 'show']);   
+    Route::post('/', [SizeController::class, 'store']);      
+    Route::put('/{id}', [SizeController::class, 'update']);   
+    Route::delete('/{id}', [SizeController::class, 'destroy']); 
 });
+
 // Route::apiResource('v1/carts', CartController::class); // auto
 
 Route::prefix('v1/carts')->group(function () { // styles hehehe

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Repositories\ProductRepository;
@@ -20,58 +19,57 @@ class ProductService
         return $this->productRepository->getAllProducts();
     }
 
-    public function getProductById($id)
-    {
-        return $this->productRepository->getProductById($id);
-    }
-
     public function createProduct(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'link' => 'required|string',
-            'price' => 'required|numeric',
-            'hot' => 'boolean',
-            'sale' => 'numeric',
-            'description' => 'nullable|string',
-            'brand_id' => 'required|exists:brands,id',
-            'category_id' => 'required|exists:categories,id',
-            'images' => 'required|array',
-            'images.*' => 'image|mimes:jpeg,png,webp|max:5120',
-            'stocks' => 'nullable|array',
-            'stocks.*.color_id' => 'required|exists:colors,id',
-            'stocks.*.size_id' => 'required|exists:sizes,id',
-            'stocks.*.quantity' => 'required|integer',
-        ]);
-
+    {   
         $imageLinks = [];
-        foreach ($request->file('images') as $file) {
-            $path = $file->store('assets/uploads/demo', 'public');
-            $imageLinks[] = $path;
+        if ($request->hasFile('images')) {
+            try{
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store('assets/uploads/demo', 'public');
+                    $fileName = basename($path);
+                    $relativePath = "uploads/demo/{$fileName}";
+                    $imageLinks[] = $relativePath;
+                }
+            }catch(\Exception $e){
+                \Log::info('có lỗi: ' . $e->getMessage());
+            }
+        }
+     
+        $stocks = json_decode($request->input('stocks'), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception('Dữ liệu stocks không hợp lệ');
         }
 
-        return $this->productRepository->createProduct($validated, $imageLinks, $request->input('stocks'));
-    }
+        foreach ($stocks as $stock) {
+            if (!isset($stock['colorId']) || !isset($stock['sizeId']) || !isset($stock['quantity'])) {
+                throw new \Exception('Dữ liệu stocks không đầy đủ');
+            }
+            if (!\App\Models\Color::find($stock['colorId'])) {
+                throw new \Exception('Color ID không hợp lệ');
+            }
+            if (!\App\Models\Size::find($stock['sizeId'])) {
+                throw new \Exception('Size ID không hợp lệ');
+            }
+            if (!is_numeric($stock['quantity']) || $stock['quantity'] < 1) {
+                throw new \Exception('Số lượng không hợp lệ');
+            }
+        }
 
-    public function updateProduct($id, Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'link' => 'required|string',
-            'price' => 'required|numeric',
-            'hot' => 'boolean',
-            'sale' => 'numeric',
-            'description' => 'nullable|string',
-            'brand_id' => 'required|exists:brands,id',
-            'category_id' => 'required|exists:categories,id',
-        ]);
+        // Chuyển đổi hot và sale thành số (1 hoặc 0) để tránh lỗi khi chèn vào DB
+        $productData = [
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'hot' => (int) filter_var($request->input('hot'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? 0,
+            'sale' => (int) filter_var($request->input('sale'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? 0,
+            'description' => $request->input('description'),
+            'brandId' => $request->input('brandId'),
+            'categoryId' => $request->input('categoryId'),
+        ];
 
-        return $this->productRepository->updateProduct($id, $validated);
-    }
+        \Log::info('Dữ liệu $productData trước khi tạo: ', $productData);
 
-    public function deleteProduct($id)
-    {
-        return $this->productRepository->deleteProduct($id);
+        $product = $this->productRepository->createProduct($productData, $imageLinks, $stocks);
+
+        return $product;
     }
 }
-?>
