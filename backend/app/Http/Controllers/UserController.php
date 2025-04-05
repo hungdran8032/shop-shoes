@@ -1,10 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
 use App\Services\UserService;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UpdateUserRoleRequest;
+use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -15,28 +17,59 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index(): JsonResponse
+    public function create(CreateUserRequest $request)
     {
-        return response()->json($this->userService->getAll());
+        try {
+            $user = $this->userService->createUser($request->validated());
+            return response()->json($user, 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+        }
     }
 
-    public function show($id): JsonResponse
+    public function update(UpdateUserRequest $request)
     {
-        return response()->json($this->userService->getById($id));
+        try {
+            $user = $this->userService->updateUser($request->input('email'), $request->validated());
+            return response()->json($user, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+        }
     }
 
-    public function store(UserRequest $request): JsonResponse
+    public function get($email)
     {
-        return response()->json($this->userService->create($request->validated()));
+        try {
+            $user = $this->userService->getUser($email);
+            return response()->json($user, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+        }
     }
 
-    public function update(UserRequest $request, $id): JsonResponse
+    public function updateRole($email, UpdateUserRoleRequest $request)
     {
-        return response()->json($this->userService->update($id, $request->validated()));
+        try {
+            $user = $this->userService->updateUserRole($email, $request->input('role'));
+            return response()->json(['message' => 'Cập nhật vai trò thành công', 'user' => $user], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+        }
     }
 
-    public function destroy($id): JsonResponse
+    public function loginAdmin(Request $request)
     {
-        return response()->json(['message' => 'Deleted successfully', 'result' => $this->userService->delete($id)]);
+        try {
+            $user = $this->userService->loginAdmin($request->input('email'), $request->input('password'));
+            $token = JWTAuth::fromUser($user);
+
+            return response()->json([
+                'message' => 'Authentication successful',
+                'token' => $token,
+                'user' => ['email' => $user->email, 'role' => $user->role]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 401);
+        }
     }
 }

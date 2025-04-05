@@ -1,40 +1,68 @@
 <?php
-
 namespace App\Services;
 
 use App\Repositories\UserRepository;
 
 class UserService
 {
-    protected $userRepo;
+    protected $userRepository;
 
-    public function __construct(UserRepository $userRepo)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->userRepo = $userRepo;
+        $this->userRepository = $userRepository;
     }
 
-    public function getAll()
+    public function createUser(array $data)
     {
-        return $this->userRepo->getAll();
+        $existingUser = $this->userRepository->findByEmail($data['email']);
+        if ($existingUser) {
+            throw new \Exception('User đã tồn tại', 400);
+        }
+
+        $data['role'] = 'user';
+        return $this->userRepository->create($data);
     }
 
-    public function getById($id)
+    public function updateUser($email, array $data)
     {
-        return $this->userRepo->findById($id);
+        $user = $this->userRepository->findByEmail($email);
+        if (!$user) {
+            throw new \Exception('User không tồn tại', 404);
+        }
+
+        return $this->userRepository->update($user, $data);
     }
 
-    public function create(array $data)
+    public function getUser($email)
     {
-        return $this->userRepo->create($data);
+        $user = $this->userRepository->findByEmail($email);
+        if (!$user) {
+            throw new \Exception('Không tìm thấy người dùng', 404);
+        }
+        return $user;
     }
 
-    public function update($id, array $data)
+    public function updateUserRole($email, $role)
     {
-        return $this->userRepo->update($id, $data);
+        if (!in_array($role, ['user', 'admin'])) {
+            throw new \Exception('Vai trò không hợp lệ', 400);
+        }
+
+        $user = $this->userRepository->findByEmail($email);
+        if (!$user) {
+            throw new \Exception('Không tìm thấy người dùng', 404);
+        }
+
+        return $this->userRepository->update($user, ['role' => $role]);
     }
 
-    public function delete($id)
+    public function loginAdmin($email, $password)
     {
-        return $this->userRepo->delete($id);
+        $user = $this->userRepository->findByEmail($email);
+        if (!$user || $user->password !== $password) {
+            throw new \Exception('Thông tin đăng nhập không hợp lệ', 401);
+        }
+
+        return $user;
     }
 }
