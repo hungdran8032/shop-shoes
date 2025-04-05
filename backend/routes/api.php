@@ -5,17 +5,18 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\BrandController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 // Route::get('/products', [ProductController::class, 'list']);
 // /api/v1/products
 Route::prefix('v1/products')->group(function () {
-    Route::get('/', [ProductController::class, 'getAllProducts']); 
-    Route::post('/', [ProductController::class, 'createProduct']); 
-    Route::get('/{id}', [ProductController::class, 'getProductById']); 
-    Route::put('/{id}', [ProductController::class, 'updateProduct']); 
-    Route::delete('/{id}', [ProductController::class, 'deleteProduct']); 
+    Route::get('/', [ProductController::class, 'getAllProducts']);
+    Route::post('/', [ProductController::class, 'createProduct']);
+    Route::get('/{id}', [ProductController::class, 'getProductById']);
+    Route::put('/{id}', [ProductController::class, 'updateProduct']);
+    Route::delete('/{id}', [ProductController::class, 'deleteProduct']);
 });
 
 Route::prefix('v1/brands')->group(function () {
@@ -31,15 +32,23 @@ Route::prefix('v1/categories')->group(function () {
     Route::get('/{id}', [CategoryController::class, 'show']);     // GET    /api/categories/{id}
     Route::post('/', [CategoryController::class, 'store']);       // POST   /api/categories
     Route::put('/{id}', [CategoryController::class, 'update']);   // PUT    /api/categories/{id}
-    Route::delete('/{id}', [CategoryController::class, 'destroy']);// DELETE /api/categories/{id}
+    Route::delete('/{id}', [CategoryController::class, 'destroy']); // DELETE /api/categories/{id}
 });
 
+// routes/api.php
+Route::prefix('v1/colors')->group(function () {
+    Route::get('/', [ColorController::class, 'index']);
+    Route::get('/{id}', [ColorController::class, 'show']);
+    Route::post('/', [ColorController::class, 'store']);
+    Route::put('/{id}', [ColorController::class, 'update']);
+    Route::delete('/{id}', [ColorController::class, 'destroy']);
+});
 Route::prefix('v1/sizes')->group(function () {
     Route::get('/', [SizeController::class, 'index']);        // GET    /api/v1/sizes
     Route::get('/{id}', [SizeController::class, 'show']);     // GET    /api/v1/sizes/{id}
     Route::post('/', [SizeController::class, 'store']);       // POST   /api/v1/sizes
     Route::put('/{id}', [SizeController::class, 'update']);   // PUT    /api/v1/sizes/{id}
-    Route::delete('/{id}', [SizeController::class, 'destroy']);// DELETE /api/v1/sizes/{id}
+    Route::delete('/{id}', [SizeController::class, 'destroy']); // DELETE /api/v1/sizes/{id}
 });
 // Route::apiResource('v1/carts', CartController::class); // auto
 
