@@ -9,18 +9,15 @@ use Illuminate\Support\Facades\DB;
 class ProductRepository
 {
     protected $model;
-    public function __construct(Product $model){
+
+    public function __construct(Product $model)
+    {
         $this->model = $model;
     }
     
     public function getAllProducts()
     {
         return $this->model->with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->get();
-    }
-
-    public function getProductById($id)
-    {
-        return $this->model->with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->find($id);
     }
 
     public function createProduct(array $data, array $imageLinks, array $stocks)
@@ -51,30 +48,11 @@ class ProductRepository
                 }
             }
 
-            return $product; 
+            DB::commit();
+            return $product->load(['brand', 'category', 'images', 'stocks.color', 'stocks.size']);
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
-    }
-
-    public function updateProduct($id, array $data)
-    {
-        $product = $this->model->find($id);
-        if ($product) {
-            $product->update($data);
-            return $this->model->with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])
-                ->find($id);
-        }
-        return null;
-    }
-
-    public function deleteProduct($id)
-    {
-        $product = $this->model->find($id);
-        if ($product) {
-            $product->delete();
-        }
-        return $product;
     }
 }
