@@ -6,6 +6,7 @@ use App\Http\Controllers\BrandController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\UserController;
 // Route::get('/products', [ProductController::class, 'list']);
 // /api/v1/products
 Route::prefix('v1/products')->group(function () {
@@ -42,3 +43,10 @@ Route::prefix('v1/carts')->group(function () { // styles hehehe
     Route::delete('/{id}', [CartController::class, 'destroy']); // DELETE /api/v1/carts/{id}
 });
 
+Route::prefix('v1/users')->group(function () {
+    Route::get('/', [UserController::class, 'index']);
+    Route::get('/{id}', [UserController::class, 'show']);
+    Route::post('/', [UserController::class, 'store']);
+    Route::put('/{id}', [UserController::class, 'update']);
+    Route::delete('/{id}', [UserController::class, 'destroy']);
+});
