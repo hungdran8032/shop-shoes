@@ -23,7 +23,6 @@ Route::prefix('v1/brands')->group(function () {
     Route::put('/{id}', [BrandController::class, 'update']);
     Route::delete('/{id}', [BrandController::class, 'destroy']);
 });
-=======
 Route::prefix('v1/categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index']);        // GET    /api/categories
     Route::get('/{id}', [CategoryController::class, 'show']);     // GET    /api/categories/{id}
