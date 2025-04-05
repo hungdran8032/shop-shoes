@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductRequest;
 use App\Services\ProductService;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {
@@ -14,28 +15,62 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-    public function list()
+    public function getAllProducts(): JsonResponse
     {
-        return $this->productService->getAllProducts();
+        try {
+            $products = $this->productService->getAllProducts();
+            return response()->json($products, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    public function create(ProductRequest $request)
+    public function getProductById($id): JsonResponse
     {
-        return $this->productService->createProduct($request->validated());
+        try {
+            $product = $this->productService->getProductById($id);
+            if (!$product) {
+                return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
+            }
+            return response()->json($product, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    public function show($id)
+    public function createProduct(Request $request): JsonResponse
     {
-        return $this->productService->getProductById($id);
+        try {
+            $product = $this->productService->createProduct($request);
+            return response()->json($product, 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    public function update(ProductRequest $request, $id)
+    public function updateProduct($id, Request $request): JsonResponse
     {
-        return $this->productService->updateProduct($id, $request->validated());
+        try {
+            $product = $this->productService->updateProduct($id, $request);
+            if (!$product) {
+                return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
+            }
+            return response()->json($product, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    public function destroy($id)
+    public function deleteProduct($id): JsonResponse
     {
-        return $this->productService->deleteProduct($id);
+        try {
+            $product = $this->productService->deleteProduct($id);
+            if (!$product) {
+                return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
+            }
+            return response()->json(['message' => 'Xóa sản phẩm thành công'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
+        }
     }
 }
