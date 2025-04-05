@@ -1,37 +1,71 @@
 <?php
-
 namespace App\Repositories;
 
 use App\Models\Product;
+use App\Models\Image;
+use App\Models\ProductStock;
+use Illuminate\Support\Facades\DB;
 
 class ProductRepository
 {
-    public function getAll()
+    public function getAllProducts()
     {
-        return Product::all();
+        return Product::with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->get();
     }
 
-    public function find($id)
+    public function getProductById($id)
     {
-        return Product::findOrFail($id);
+        return Product::with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->find($id);
     }
 
-    public function create(array $data)
+    public function createProduct(array $data, array $imageLinks, array $stocks)
     {
-        return Product::create($data);
+        DB::beginTransaction();
+        try {
+            $product = Product::create($data);
+
+            foreach ($imageLinks as $link) {
+                Image::create([
+                    'product_id' => $product->id,
+                    'link' => $link
+                ]);
+            }
+
+            if ($stocks) {
+                foreach ($stocks as $stock) {
+                    ProductStock::create([
+                        'product_id' => $product->id,
+                        'color_id' => $stock['color_id'],
+                        'size_id' => $stock['size_id'],
+                        'quantity' => $stock['quantity'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return $product;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
-    public function update($id, array $data)
+    public function updateProduct($id, array $data)
     {
-        $product = $this->find($id);
-        $product->update($data);
+        $product = Product::find($id);
+        if ($product) {
+            $product->update($data);
+        }
         return $product;
     }
 
-    public function delete($id)
+    public function deleteProduct($id)
     {
-        $product = $this->find($id);
-        $product->delete();
+        $product = Product::find($id);
+        if ($product) {
+            $product->delete();
+        }
         return $product;
     }
 }
+?>
