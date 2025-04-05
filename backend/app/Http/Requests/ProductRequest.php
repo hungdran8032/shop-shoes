@@ -16,6 +16,6 @@ class ProductRequest extends FormRequest
             'hot' => 'boolean',
             'sale' => 'boolean',
             'description' => 'nullable|string',
-        ];
+        ];  
     }
 }
