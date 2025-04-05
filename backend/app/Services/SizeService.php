@@ -2,7 +2,6 @@
 namespace App\Services;
 
 use App\Repositories\SizeRepository;
-use App\Models\Size;
 
 class SizeService
 {

@@ -8,42 +8,50 @@ use Illuminate\Support\Facades\DB;
 
 class ProductRepository
 {
+    protected $model;
+    public function __construct(Product $model){
+        $this->model = $model;
+    }
+    
     public function getAllProducts()
     {
-        return Product::with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->get();
+        return $this->model->with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->get();
     }
 
     public function getProductById($id)
     {
-        return Product::with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->find($id);
+        return $this->model->with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->find($id);
     }
 
     public function createProduct(array $data, array $imageLinks, array $stocks)
     {
         DB::beginTransaction();
         try {
-            $product = Product::create($data);
+            $product = $this->model->create($data);
 
-            foreach ($imageLinks as $link) {
-                Image::create([
-                    'product_id' => $product->id,
-                    'link' => $link
-                ]);
+            // Tạo images (nếu có)
+            if (!empty($imageLinks)) {
+                foreach ($imageLinks as $link) {
+                    Image::create([
+                        'productId' => $product->id,
+                        'link' => $link
+                    ]);
+                }
             }
 
-            if ($stocks) {
+            // Tạo stocks (nếu có)
+            if (!empty($stocks)) {
                 foreach ($stocks as $stock) {
                     ProductStock::create([
-                        'product_id' => $product->id,
-                        'color_id' => $stock['color_id'],
-                        'size_id' => $stock['size_id'],
+                        'productId' => $product->id,
+                        'colorId' => $stock['colorId'],
+                        'sizeId' => $stock['sizeId'],
                         'quantity' => $stock['quantity'],
                     ]);
                 }
             }
 
-            DB::commit();
-            return $product;
+            return $product; 
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -52,20 +60,21 @@ class ProductRepository
 
     public function updateProduct($id, array $data)
     {
-        $product = Product::find($id);
+        $product = $this->model->find($id);
         if ($product) {
             $product->update($data);
+            return $this->model->with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])
+                ->find($id);
         }
-        return $product;
+        return null;
     }
 
     public function deleteProduct($id)
     {
-        $product = Product::find($id);
+        $product = $this->model->find($id);
         if ($product) {
             $product->delete();
         }
         return $product;
     }
 }
-?>
