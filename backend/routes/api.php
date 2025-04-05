@@ -13,7 +13,6 @@ Route::prefix('v1/products')->group(function () {
     Route::put('/{id}', [ProductController::class, 'update']);
     Route::delete('/{id}', [ProductController::class, 'destroy']);
 });
-
 Route::prefix('v1/categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index']);        // GET    /api/categories
     Route::get('/{id}', [CategoryController::class, 'show']);     // GET    /api/categories/{id}
@@ -21,3 +20,4 @@ Route::prefix('v1/categories')->group(function () {
     Route::put('/{id}', [CategoryController::class, 'update']);   // PUT    /api/categories/{id}
     Route::delete('/{id}', [CategoryController::class, 'destroy']);// DELETE /api/categories/{id}
 });
+
