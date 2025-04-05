@@ -5,17 +5,14 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\BrandController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
-<<<<<<< HEAD
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AddressController;
-=======
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\VerifyAdminToken;
 
->>>>>>> origin/DEV
 // Route::get('/products', [ProductController::class, 'list']);
 // /api/v1/products
 Route::prefix('v1/products')->group(function () {
@@ -42,7 +39,6 @@ Route::prefix('v1/categories')->group(function () {
     Route::delete('/{id}', [CategoryController::class, 'destroy']); // DELETE /api/categories/{id}
 });
 
-<<<<<<< HEAD
 Route::prefix('v1/orders')->group(function () {
     Route::get('/', [OrderController::class, 'index']);        // GET    /api/orders
     Route::get('/{id}', [OrderController::class, 'show']);     // GET    /api/orders/{id}
@@ -58,7 +54,6 @@ Route::prefix('v1/addresses')->group(function () {
     Route::put('/{id}', [AddressController::class, 'update']);   // PUT    /api/addresses/{id}
     Route::delete('/{id}', [AddressController::class, 'destroy']); // DELETE /api/addresses/{id}
 });
-=======
 // routes/api.php
 Route::prefix('v1/colors')->group(function () {
     Route::get('/', [ColorController::class, 'index']);
@@ -92,4 +87,3 @@ Route::prefix('v1/users')->group(function () {
     Route::put('{email}/role', [UserController::class, 'updateRole'])->middleware('verify.admin.token');
     Route::post('/admin', [UserController::class, 'loginAdmin']);
 });
->>>>>>> origin/DEV
