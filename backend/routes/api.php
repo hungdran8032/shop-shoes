@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\SizeController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\UserController;
+use App\Http\Middleware\VerifyAdminToken;
+
 // Route::get('/products', [ProductController::class, 'list']);
 // /api/v1/products
 Route::prefix('v1/products')->group(function () {
@@ -47,4 +53,37 @@ Route::prefix('v1/addresses')->group(function () {
     Route::post('/', [AddressController::class, 'store']);       // POST   /api/addresses
     Route::put('/{id}', [AddressController::class, 'update']);   // PUT    /api/addresses/{id}
     Route::delete('/{id}', [AddressController::class, 'destroy']); // DELETE /api/addresses/{id}
+});
+// routes/api.php
+Route::prefix('v1/colors')->group(function () {
+    Route::get('/', [ColorController::class, 'index']);
+    Route::get('/{id}', [ColorController::class, 'show']);
+    Route::post('/', [ColorController::class, 'store']);
+    Route::put('/{id}', [ColorController::class, 'update']);
+    Route::delete('/{id}', [ColorController::class, 'destroy']);
+});
+Route::prefix('v1/sizes')->group(function () {
+    Route::get('/', [SizeController::class, 'index']);        // GET    /api/v1/sizes
+    Route::get('/{id}', [SizeController::class, 'show']);     // GET    /api/v1/sizes/{id}
+    Route::post('/', [SizeController::class, 'store']);       // POST   /api/v1/sizes
+    Route::put('/{id}', [SizeController::class, 'update']);   // PUT    /api/v1/sizes/{id}
+    Route::delete('/{id}', [SizeController::class, 'destroy']); // DELETE /api/v1/sizes/{id}
+});
+// Route::apiResource('v1/carts', CartController::class); // auto
+
+Route::prefix('v1/carts')->group(function () { // styles hehehe
+    Route::get('/', [CartController::class, 'index']);          // GET    /api/v1/carts
+    Route::get('/{id}', [CartController::class, 'show']);       // GET    /api/v1/carts/{id}
+    Route::post('/', [CartController::class, 'store']);         // POST   /api/v1/carts
+    Route::put('/{id}', [CartController::class, 'update']);     // PUT    /api/v1/carts/{id}
+    Route::delete('/{id}', [CartController::class, 'destroy']); // DELETE /api/v1/carts/{id}
+});
+
+
+Route::prefix('v1/users')->group(function () {
+    Route::get('{email}', [UserController::class, 'get']);
+    Route::post('/', [UserController::class, 'create']);
+    Route::put('/', [UserController::class, 'update']);
+    Route::put('{email}/role', [UserController::class, 'updateRole'])->middleware('verify.admin.token');
+    Route::post('/admin', [UserController::class, 'loginAdmin']);
 });
