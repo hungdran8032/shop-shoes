@@ -13,7 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // $middleware->append(VerifyAdminToken::class);
+        $middleware->alias([
+            'verify.admin.token' => VerifyAdminToken::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
