@@ -3,7 +3,6 @@ namespace App\Services;
 
 use App\Repositories\ProductRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -14,48 +13,18 @@ class ProductService
         $this->productRepository = $productRepository;
     }
 
-    public function getAllProducts()
+    public function getAll()
     {
-        return $this->productRepository->getAllProducts();
+        return $this->productRepository->getAll();
     }
 
-    public function createProduct(Request $request)
-    {   
-        $imageLinks = [];
-        if ($request->hasFile('images')) {
-            try{
-                foreach ($request->file('images') as $file) {
-                    $path = $file->store('assets/uploads/demo', 'public');
-                    $fileName = basename($path);
-                    $relativePath = "uploads/demo/{$fileName}";
-                    $imageLinks[] = $relativePath;
-                }
-            }catch(\Exception $e){
-                \Log::info('có lỗi: ' . $e->getMessage());
-            }
-        }
-     
-        $stocks = json_decode($request->input('stocks'), true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Dữ liệu stocks không hợp lệ');
-        }
+    public function findById($id)
+    {
+        return $this->productRepository->findById($id);
+    }
 
-        foreach ($stocks as $stock) {
-            if (!isset($stock['colorId']) || !isset($stock['sizeId']) || !isset($stock['quantity'])) {
-                throw new \Exception('Dữ liệu stocks không đầy đủ');
-            }
-            if (!\App\Models\Color::find($stock['colorId'])) {
-                throw new \Exception('Color ID không hợp lệ');
-            }
-            if (!\App\Models\Size::find($stock['sizeId'])) {
-                throw new \Exception('Size ID không hợp lệ');
-            }
-            if (!is_numeric($stock['quantity']) || $stock['quantity'] < 1) {
-                throw new \Exception('Số lượng không hợp lệ');
-            }
-        }
-
-        // Chuyển đổi hot và sale thành số (1 hoặc 0) để tránh lỗi khi chèn vào DB
+    public function create(Request $request)
+    {
         $productData = [
             'name' => $request->input('name'),
             'price' => $request->input('price'),
@@ -66,10 +35,17 @@ class ProductService
             'categoryId' => $request->input('categoryId'),
         ];
 
-        \Log::info('Dữ liệu $productData trước khi tạo: ', $productData);
+        return $this->productRepository->create($productData);
+    }
 
-        $product = $this->productRepository->createProduct($productData, $imageLinks, $stocks);
+    public function update($id, Request $request)
+    {
+        $productData = $request->only(['name', 'price', 'hot', 'sale', 'description', 'brandId', 'categoryId']);
+        return $this->productRepository->update($id, $productData);
+    }
 
-        return $product;
+    public function delete($id)
+    {
+        return $this->productRepository->delete($id);
     }
 }
