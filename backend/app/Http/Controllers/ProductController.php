@@ -3,7 +3,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\Services\ProductService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
@@ -15,14 +14,13 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-    public function getAllProducts(): JsonResponse
+    public function index(): JsonResponse
     {
         try {
-            $products = $this->productService->getAllProducts();
+            $products = $this->productService->getAll();
             return response()->json($products, 200);
         } catch (\Exception $e) {
-            \Log::error('Lỗi lấy danh sách sản phẩm: ' . $e->getMessage());
-            return response()->json(['message' => 'Lỗi server', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Server error', 'error' => $e->getMessage()], 500);
         }
     }
     public function createProduct(ProductRequest $request): JsonResponse

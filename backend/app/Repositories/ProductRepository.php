@@ -2,9 +2,6 @@
 namespace App\Repositories;
 
 use App\Models\Product;
-use App\Models\Image;
-use App\Models\ProductStock;
-use Illuminate\Support\Facades\DB;
 
 class ProductRepository
 {

@@ -37,4 +37,9 @@ class CartService
     {
         return $this->cartRepo->delete($id);
     }
+
+    public function getByUserId($userId)
+    {
+        return $this->cartRepo->getByUserId($userId);
+    }
 }
