@@ -1,10 +1,10 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Tymon\JWTAuth\Contracts\JWTSubject; // Thêm interface này
+use Illuminate\Foundation\Auth\User as Authenticatable; // Thay đổi ở đây
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Model implements JWTSubject // Implement interface
+class User extends Authenticatable implements JWTSubject
 {
     protected $table = 'users';
     protected $fillable = ['email', 'password', 'role'];
@@ -14,18 +14,16 @@ class User extends Model implements JWTSubject // Implement interface
         return $this->hasMany(Cart::class, 'userId');
     }
 
-    // Triển khai phương thức getJWTIdentifier
     public function getJWTIdentifier()
     {
-        return $this->getKey(); // Trả về khóa chính (thường là id)
+        return $this->getKey(); // Trả về id
     }
 
-    // Triển khai phương thức getJWTCustomClaims
     public function getJWTCustomClaims()
     {
         return [
             'role' => $this->role,
             'email' => $this->email,
         ];
-    }   
+    }
 }

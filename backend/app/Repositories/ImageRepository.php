@@ -1,25 +1,25 @@
 <?php
 namespace App\Repositories;
 
-use App\Models\Product;
+use App\Models\Image;
 
-class ProductRepository
+class ImageRepository
 {
     protected $model;
 
-    public function __construct(Product $model)
+    public function __construct(Image $model)
     {
         $this->model = $model;
     }
 
     public function getAll()
     {
-        return $this->model->with(['brand', 'category'])->get();
+        return $this->model->with('product')->get();
     }
 
     public function findById($id)
     {
-        return $this->model->with(['brand', 'category'])->findOrFail($id);
+        return $this->model->with('product')->findOrFail($id);
     }
 
     public function create(array $data)
@@ -29,15 +29,15 @@ class ProductRepository
 
     public function update($id, array $data)
     {
-        $product = $this->findById($id);
-        $product->update($data);
-        return $product;
+        $image = $this->findById($id);
+        $image->update($data);
+        return $image;
     }
 
     public function delete($id)
     {
-        $product = $this->findById($id);
-        $product->delete();
+        $image = $this->findById($id);
+        $image->delete();
         return true;
     }
 }
