@@ -145,8 +145,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/admin', [UserController::class, 'loginAdmin']);
     });
     Route::prefix('carts')->group(function () {
-        Route::get('/', [CartController::class, 'index']);
+        //Route::get('/', [CartController::class, 'index']);
+        //Route::middleware(['verify.admin'])->get('/', [CartController::class, 'index']);
+        Route::get('/', [CartController::class, 'index'])->middleware('verify.admin.token');
         Route::get('/{id}', [CartController::class, 'show']);
+        Route::get('/user/{userId}', [CartController::class, 'getByUserId']);
         Route::post('/', [CartController::class, 'store']);
         Route::put('/{id}', [CartController::class, 'update']);
         Route::delete('/{id}', [CartController::class, 'destroy']);
