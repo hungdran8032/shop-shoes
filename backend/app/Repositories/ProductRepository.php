@@ -14,45 +14,33 @@ class ProductRepository
     {
         $this->model = $model;
     }
-    
+
+    public function getById($id)
+{
+    return $this->model->with([
+        'brand',
+        'category',
+        'images',
+        'stocks.color',
+        'stocks.size'
+    ])->find($id);
+}
+
     public function getAllProducts()
     {
-        return $this->model->with(['brand', 'category', 'images', 'stocks.color', 'stocks.size'])->get();
+        return$this->model->with([
+            'brand',         
+            'category',        // Quan hệ với Category
+            'images',          // Quan hệ với Image
+            'stocks.color',    // Quan hệ với ProductStock và Color
+            'stocks.size'      // Quan hệ với ProductStock và Size
+        ])->get();
     }
 
-    public function createProduct(array $data, array $imageLinks, array $stocks)
+    public function createProduct(array $data)
     {
-        DB::beginTransaction();
-        try {
-            $product = $this->model->create($data);
+        $product = $this->model->create($data);
+        return $product;
 
-            // Tạo images (nếu có)
-            if (!empty($imageLinks)) {
-                foreach ($imageLinks as $link) {
-                    Image::create([
-                        'productId' => $product->id,
-                        'link' => $link
-                    ]);
-                }
-            }
-
-            // Tạo stocks (nếu có)
-            if (!empty($stocks)) {
-                foreach ($stocks as $stock) {
-                    ProductStock::create([
-                        'productId' => $product->id,
-                        'colorId' => $stock['colorId'],
-                        'sizeId' => $stock['sizeId'],
-                        'quantity' => $stock['quantity'],
-                    ]);
-                }
-            }
-
-            DB::commit();
-            return $product->load(['brand', 'category', 'images', 'stocks.color', 'stocks.size']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
     }
 }

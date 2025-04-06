@@ -13,14 +13,12 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\VerifyAdminToken;
 
-// Route::get('/products', [ProductController::class, 'list']);
+
 // /api/v1/products
 Route::prefix('v1/products')->group(function () {
     Route::get('/', [ProductController::class, 'getAllProducts']);
     Route::post('/', [ProductController::class, 'createProduct']);
-    Route::get('/{id}', [ProductController::class, 'getProductById']);
-    Route::put('/{id}', [ProductController::class, 'updateProduct']);
-    Route::delete('/{id}', [ProductController::class, 'deleteProduct']);
+    Route::get('/{id}', [ProductController::class, 'getById']); 
 });
 
 Route::prefix('v1/brands')->group(function () {

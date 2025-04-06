@@ -10,12 +10,15 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string',
-            'link' => 'required|string',
-            'price' => 'required|numeric',
-            'hot' => 'boolean',
-            'sale' => 'boolean',
-            'description' => 'nullable|string',
-        ];  
+            'name' => 'nullable',         // Không bắt buộc, không kiểm tra kiểu
+            'price' => 'nullable',        // Không bắt buộc, không kiểm tra kiểu
+            'hot' => 'nullable',          // Không bắt buộc, không kiểm tra kiểu
+            'sale' => 'nullable',         // Không bắt buộc, không kiểm tra kiểu
+            'description' => 'nullable',  // Không bắt buộc, không kiểm tra kiểu
+            'brandId' => 'nullable',      // Không bắt buộc, không kiểm tra tồn tại
+            'categoryId' => 'nullable',   // Không bắt buộc, không kiểm tra tồn tại
+            'images' => 'nullable',       // Không bắt buộc, không kiểm tra định dạng/kích thước
+            'stocks' => 'nullable',       // Không bắt buộc, không kiểm tra là mảng
+        ];
     }
 }

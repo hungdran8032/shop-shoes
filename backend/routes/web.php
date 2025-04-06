@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 //     Route::delete('/{id}', [ProductController::class, 'destroy']);
 // });
 
+
+
 Route::get('/test', [TestController::class, 'index']);
 
 
