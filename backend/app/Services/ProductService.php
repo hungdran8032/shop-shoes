@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Services;
 
 use App\Repositories\ProductRepository;
+use Illuminate\Http\Request;
 
 class ProductService
 {
@@ -13,27 +13,38 @@ class ProductService
         $this->productRepository = $productRepository;
     }
 
-    public function getAllProducts()
+    public function getAll()
     {
         return $this->productRepository->getAll();
     }
 
-    public function createProduct(array $data)
+    public function findById($id)
     {
-        return $this->productRepository->create($data);
+        return $this->productRepository->findById($id);
     }
 
-    public function getProductById($id)
+    public function create(Request $request)
     {
-        return $this->productRepository->find($id);
+        $productData = [
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'hot' => (int) filter_var($request->input('hot'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? 0,
+            'sale' => (int) filter_var($request->input('sale'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? 0,
+            'description' => $request->input('description'),
+            'brandId' => $request->input('brandId'),
+            'categoryId' => $request->input('categoryId'),
+        ];
+
+        return $this->productRepository->create($productData);
     }
 
-    public function updateProduct($id, array $data)
+    public function update($id, Request $request)
     {
-        return $this->productRepository->update($id, $data);
+        $productData = $request->only(['name', 'price', 'hot', 'sale', 'description', 'brandId', 'categoryId']);
+        return $this->productRepository->update($id, $productData);
     }
 
-    public function deleteProduct($id)
+    public function delete($id)
     {
         return $this->productRepository->delete($id);
     }
