@@ -16,7 +16,7 @@ class ProductController extends Controller
 
     public function list()
     {
-        return $this->productService->getAllProducts();
+        return $this->productService->getAllProducts(); 
     }
 
     public function create(ProductRequest $request)
