@@ -32,4 +32,9 @@ class CartRepository
     {
         return Cart::destroy($id);
     }
+
+    public function getByUserId($userId)
+    {
+        return Cart::with(['product', 'brand'])->where('userId', $userId)->get();
+    }
 }

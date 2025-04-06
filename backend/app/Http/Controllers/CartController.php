@@ -39,4 +39,13 @@ class CartController extends Controller
     {
         return response()->json(['message' => 'Deleted successfully', 'result' => $this->cartService->delete($id)]);
     }
+
+    public function getByUserId($userId): JsonResponse
+    {
+        $cart = $this->cartService->getByUserId($userId);
+        return response()->json([
+            'message' => 'Success!',
+            'data' => $cart
+        ]);
+    }
 }
