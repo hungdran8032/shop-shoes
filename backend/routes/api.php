@@ -70,7 +70,7 @@ Route::prefix('v1/sizes')->group(function () {
 
 // Route::apiResource('v1/carts', CartController::class); // auto
 
-Route::prefix('v12/carts')->group(function () { // styles hehehe
+Route::prefix('v123/carts')->group(function () { // styles hehehe
     Route::get('/', [CartController::class, 'index']);          // GET    /api/v1/carts
     Route::get('/{id}', [CartController::class, 'show']);       // GET    /api/v1/carts/{id}
     Route::post('/', [CartController::class, 'store']);         // POST   /api/v1/carts
