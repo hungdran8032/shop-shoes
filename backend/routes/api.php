@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\BrandController;
@@ -13,8 +14,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\VerifyAdminToken;
 
-// // Route::get('/products', [ProductController::class, 'list']);
-// // /api/v1/products
+
 Route::prefix('v1/products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::post('/', [ProductController::class, 'createProduct']);
@@ -38,11 +38,7 @@ Route::prefix('v1/categories')->group(function () {
 });
 
 Route::prefix('v1/orders')->group(function () {
-    Route::get('/', [OrderController::class, 'index']);        // GET    /api/orders
-    Route::get('/{id}', [OrderController::class, 'show']);     // GET    /api/orders/{id}
-    Route::post('/', [OrderController::class, 'store']);       // POST   /api/orders
-    Route::put('/{id}', [OrderController::class, 'update']);   // PUT    /api/orders/{id}
-    Route::delete('/{id}', [OrderController::class, 'destroy']); // DELETE /api/orders/{id}
+    Route::post('/', [OrderController::class, 'createOrder']); 
 });
 
 Route::prefix('v1/addresses')->group(function () {
@@ -52,7 +48,7 @@ Route::prefix('v1/addresses')->group(function () {
     Route::put('/{id}', [AddressController::class, 'update']);   // PUT    /api/addresses/{id}
     Route::delete('/{id}', [AddressController::class, 'destroy']); // DELETE /api/addresses/{id}
 });
-// routes/api.php
+
 Route::prefix('v1/colors')->group(function () {
     Route::get('/', [ColorController::class, 'index']);
     Route::get('/{id}', [ColorController::class, 'show']);
@@ -68,23 +64,24 @@ Route::prefix('v1/sizes')->group(function () {
     Route::delete('/{id}', [SizeController::class, 'destroy']); 
 });
 
-// Route::apiResource('v1/carts', CartController::class); // auto
-
-Route::prefix('v1/carts')->group(function () { // styles hehehe
-    Route::get('/', [CartController::class, 'index']);          // GET    /api/v1/carts
-    Route::get('/{id}', [CartController::class, 'show']);       // GET    /api/v1/carts/{id}
-    Route::post('/', [CartController::class, 'store']);         // POST   /api/v1/carts
-    Route::put('/{id}', [CartController::class, 'update']);     // PUT    /api/v1/carts/{id}
-    Route::delete('/{id}', [CartController::class, 'destroy']); // DELETE /api/v1/carts/{id}
+Route::prefix('v1/carts')->group(function () {
+    Route::get('/', [CartController::class, 'getCartItems']);
+    Route::get('/{id}', [CartController::class, 'getCartItemById']);       
+    Route::post('/', [CartController::class, 'createCartItem']);       
+    Route::get('/user/{id}', [CartController::class, 'getCartByUserId']);     
+    Route::delete('/{id}', [CartController::class, 'deleteCartItem']); 
 });
 
 
 Route::prefix('v1/users')->group(function () {
-    Route::get('{email}', [UserController::class, 'get']);
-    Route::post('/', [UserController::class, 'create']);
-    Route::put('/', [UserController::class, 'update']);
+    Route::get('{email}', [UserController::class, 'getUser']);
+    Route::post('/', [UserController::class, 'createUser']);
     Route::put('{email}/role', [UserController::class, 'updateRole'])->middleware('verify.admin.token');
     Route::post('/admin', [UserController::class, 'loginAdmin']);
+});
+
+Route::prefix('v1/momo')->group(function () {
+    Route::post('/create-payment', [PaymentController::class, 'createPayment']);
 });
 
 

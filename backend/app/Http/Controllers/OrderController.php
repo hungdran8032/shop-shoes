@@ -2,82 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OrderRequest;
-use App\Services\OrderService;
-use Illuminate\Http\JsonResponse;
+use App\Models\Address;
+use App\Models\Order;
+use App\Models\Cart;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    protected $orderService;
-
-    public function __construct(OrderService $orderService)
+    public function createOrder(Request $request)
     {
-        $this->orderService = $orderService;
-    }
+        try {
+            // $request->validate([
+            //     'name' => 'required|string',
+            //     'email' => 'required|email',
+            //     'phone' => 'required|string',
+            //     'address.city' => 'required|string',
+            //     'address.country' => 'required|string',
+            //     'address.state' => 'required|string',
+            //     'address.zipcode' => 'required|string',
+            //     'carts' => 'required|array',
+            //     'carts.*' => 'exists:carts,id',
+            //     'totalPrice' => 'required|numeric|min:0',
+            // ]);
 
-    /**
-     * Lấy danh sách tất cả các đơn hàng.
-     */
-    public function index(): JsonResponse
-    {
-        $orders = $this->orderService->getAllOrders();
-        return response()->json($orders);
-    }
+            $addressData = $request->address;
+            $existingAddress = Address::where([
+                'city' => $addressData['city'],
+                'country' => $addressData['country'],
+                'state' => $addressData['state'],
+                'zipcode' => $addressData['zipcode'],
+            ])->first();
 
-    /**
-     * Tạo một đơn hàng mới.
-     */
-    public function store(OrderRequest $request): JsonResponse
-    {
-        $order = $this->orderService->createOrder($request->validated());
-        return response()->json([
-            'message' => 'Order created successfully!',
-            'order' => $order,
-        ], 201);
-    }
+            if (!$existingAddress) {
+                $existingAddress = Address::create($addressData);
+            }
 
-    /**
-     * Lấy thông tin chi tiết của một đơn hàng.
-     */
-    public function show($id): JsonResponse
-    {
-        $order = $this->orderService->getOrderById($id);
+            $newOrder = Order::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'totalPrice' => $request->totalPrice,
+                'addressId' => $existingAddress->id,
+            ]);
 
-        if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
+            Cart::whereIn('id', $request->carts)->update([
+                'orderId' => $newOrder->id,
+                'isPayed' => true,
+            ]);
+
+            return response()->json([
+                'message' => 'Đơn hàng đã được tạo thành công!',
+                'order' => $newOrder,
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error("Lỗi khi tạo đơn hàng: " . $e->getMessage());
+            return response()->json([
+                'message' => 'Lỗi server',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json($order);
-    }
-
-    /**
-     * Cập nhật thông tin đơn hàng.
-     */
-    public function update(OrderRequest $request, $id): JsonResponse
-    {
-        $order = $this->orderService->updateOrder($id, $request->validated());
-
-        if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
-        return response()->json([
-            'message' => 'Order updated successfully!',
-            'order' => $order,
-        ]);
-    }
-
-    /**
-     * Xóa một đơn hàng.
-     */
-    public function destroy($id): JsonResponse
-    {
-        $deleted = $this->orderService->deleteOrder($id);
-
-        if (!$deleted) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
-        return response()->json(['message' => 'Order deleted successfully!']);
     }
 }

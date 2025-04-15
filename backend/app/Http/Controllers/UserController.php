@@ -2,9 +2,6 @@
 namespace App\Http\Controllers;
 
 use App\Services\UserService;
-use App\Http\Requests\CreateUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\UpdateUserRoleRequest;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -17,44 +14,20 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function create(CreateUserRequest $request)
+    public function createUser(Request $request)
     {
-        try {
-            $user = $this->userService->createUser($request->validated());
-            return response()->json($user, 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
-        }
+        $data = $request->only(['email', 'password']);
+        return $this->userService->createUser($data);
     }
 
-    public function update(UpdateUserRequest $request)
+    public function getUser($email)
     {
-        try {
-            $user = $this->userService->updateUser($request->input('email'), $request->validated());
-            return response()->json($user, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
-        }
+        return $this->userService->getUser($email);
     }
 
-    public function get($email)
+    public function updateUserRole(Request $request, $email)
     {
-        try {
-            $user = $this->userService->getUser($email);
-            return response()->json($user, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
-        }
-    }
-
-    public function updateRole($email, UpdateUserRoleRequest $request)
-    {
-        try {
-            $user = $this->userService->updateUserRole($email, $request->input('role'));
-            return response()->json(['message' => 'Cập nhật vai trò thành công', 'user' => $user], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
-        }
+        return $this->userService->updateUserRole($email, $request->input('role'));
     }
 
     public function loginAdmin(Request $request)

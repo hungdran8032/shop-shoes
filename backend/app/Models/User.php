@@ -9,14 +9,9 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
     protected $fillable = ['email', 'password', 'role'];
 
-    public function carts()
-    {
-        return $this->hasMany(Cart::class, 'userId');
-    }
-
     public function getJWTIdentifier()
     {
-        return $this->getKey(); // Trả về id
+        return $this->getKey(); 
     }
 
     public function getJWTCustomClaims()

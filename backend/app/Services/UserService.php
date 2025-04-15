@@ -5,60 +5,51 @@ use App\Repositories\UserRepository;
 
 class UserService
 {
-    protected $userRepository;
+    protected $userRepo;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepo)
     {
-        $this->userRepository = $userRepository;
+        $this->userRepo = $userRepo;
     }
 
-    public function createUser(array $data)
+    public function createUser($data)
     {
-        $existingUser = $this->userRepository->findByEmail($data['email']);
+        $existingUser = $this->userRepo->findByEmail($data['email']);
         if ($existingUser) {
-            throw new \Exception('User đã tồn tại', 400);
+            return response()->json(['message' => 'User đã tồn tại'], 400);
         }
 
-        $data['role'] = 'user';
-        return $this->userRepository->create($data);
-    }
-
-    public function updateUser($email, array $data)
-    {
-        $user = $this->userRepository->findByEmail($email);
-        if (!$user) {
-            throw new \Exception('User không tồn tại', 404);
-        }
-
-        return $this->userRepository->update($user, $data);
+        $user = $this->userRepo->createUser($data);
+        return response()->json($user, 201);
     }
 
     public function getUser($email)
     {
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepo->findByEmail($email);
         if (!$user) {
-            throw new \Exception('Không tìm thấy người dùng', 404);
+            return response()->json(['message' => 'Không tìm thấy người dùng'], 404);
         }
-        return $user;
+        return response()->json($user);
     }
 
     public function updateUserRole($email, $role)
     {
         if (!in_array($role, ['user', 'admin'])) {
-            throw new \Exception('Vai trò không hợp lệ', 400);
+            return response()->json(['message' => 'Vai trò không hợp lệ'], 400);
         }
 
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepo->findByEmail($email);
         if (!$user) {
-            throw new \Exception('Không tìm thấy người dùng', 404);
+            return response()->json(['message' => 'Không tìm thấy người dùng'], 404);
         }
 
-        return $this->userRepository->update($user, ['role' => $role]);
+        $updated = $this->userRepo->updateRole($user, $role);
+        return response()->json(['message' => 'Cập nhật vai trò thành công', 'user' => $updated]);
     }
 
     public function loginAdmin($email, $password)
     {
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepo->findByEmail($email);
         if (!$user || $user->password !== $password) {
             throw new \Exception('Thông tin đăng nhập không hợp lệ', 401);
         }
