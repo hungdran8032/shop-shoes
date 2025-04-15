@@ -10,14 +10,19 @@ class UserRepository
         return User::where('email', $email)->first();
     }
 
-    public function create(array $data)
+    public function createUser($data)
     {
-        return User::create($data);
+        return User::create([
+            'email' => $data['email'],
+            'password' => $data['password'] ?? null,
+            'role' => 'user'
+        ]);
     }
 
-    public function update(User $user, array $data)
+    public function updateRole(User $user, $role)
     {
-        $user->update($data);
+        $user->role = $role;
+        $user->save();
         return $user;
     }
 }
