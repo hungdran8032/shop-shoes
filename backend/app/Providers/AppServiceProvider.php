@@ -3,7 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
+use App\Repositories\BrandRepository;
+use App\Services\BrandService;
 class AppServiceProvider extends ServiceProvider
 {
     /**
